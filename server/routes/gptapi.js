@@ -1,7 +1,6 @@
 import express from "express";
 import 'dotenv/config';
-import axios from "axios";
-import { Scenario, Response } from '../models/database.js';
+import { Scenario } from '../models/database.js';
 import OpenAI from "openai";
 import { authenticateUser } from '../middleware/auth.js'; // path as needed
 
@@ -11,48 +10,55 @@ const openai = new OpenAI({ apiKey: process.env.VITE_OPENAI_KEY });
 
 // Route to fetch all scenarios
 // GET /api/generate-scenarios
-
 router.get('/api/generate-scenarios', authenticateUser, async (req, res) => {
   try {
-    const { gender, country } = req.user;
+    const { gender, country, goal, _id: userId } = req.user;
 
-    const prompt = `You are a personal AI inclusion coach. Generate 3 realistic, detailed scenarios related to allyship and gender inclusivity in workplace or public settings. Each scenario should consider a user who identifies as ${gender} and is from ${country}. Each scenario should include a rich, thoughtful "description" (at least 100 words) that paints a vivid picture of the situation. Use the following JSON structure:
+    // Step 1: Check if scenarios already exist for this user and goal
+    const existingScenarios = await Scenario.find({ userId, goal });
+    if (existingScenarios.length > 0) {
+      return res.status(200).json({ scenarios: existingScenarios });
+    }
 
-    [
-      {
-        "id": "s1",
-        "description": "...",  // <-- Long and detailed description
-        "tags": ["..."],
-        "difficulty": "medium",
-        "topic": "...",
-        "expectedSkill": "...",
-        "quiz": [
-          {
-            "question": "...",
-            "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
-          },
-          ...
-        ],
-        "links": [
-          { "title": "...", "url": "https://..." },
-          ...
-        ]
-      },
-      ...
-    ]
-    
-    At the end, add one shared open_ended_question (outside of the scenario objects): "How would you personally address a situation like this if it happened to a colleague? Describe what you would say or do to support the person affected."
-    
-    Return the entire response as a JSON object:
-    { "scenarios": [...], "open_ended_question": "..." }
-    
-    DO NOT include any explanation or commentary. Use double quotes for all fields.`;
-    
+    // Step 2: Prompt for generating new scenarios
+    const prompt = `You are a personal AI inclusion coach. Generate 3 realistic, detailed scenarios related to allyship and gender inclusivity in workplace or public settings. Each scenario should consider a user who identifies as ${gender}, is from ${country}, and has a goal of "${goal}". Each scenario must include:
+
+- A "description" (minimum 100 words) that paints a vivid picture of the situation
+- A "tags" array (e.g. ["gender identity", "bystander intervention"])
+- "difficulty", "topic", and "expectedSkill" fields
+- A short multiple-choice quiz with 1-2 questions, each having 4 options
+- 1 or more helpful "links"
+- An "openEndedQuestion" field with a reflective question like: "How would you respond if this happened to a colleague?"
+
+Return the response as:
+{ "scenarios": [ ... ] }
+
+Use this JSON format per scenario:
+{
+  "description": "...",
+  "tags": ["..."],
+  "difficulty": "medium",
+  "topic": "...",
+  "expectedSkill": "...",
+  "quiz": [
+    {
+      "question": "...",
+      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
+    }
+  ],
+  "links": [
+    { "title": "...", "url": "https://..." }
+  ],
+  "openEndedQuestion": "..."
+}
+
+Use double quotes for all fields. Do not include explanation or commentary.`;
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
-      max_tokens: 1200,
+      max_tokens: 1400,
     });
 
     const content = response.choices[0].message.content;
@@ -60,12 +66,33 @@ router.get('/api/generate-scenarios', authenticateUser, async (req, res) => {
     const jsonText = content.slice(jsonStart);
     const parsed = JSON.parse(jsonText);
 
-    res.status(200).json(parsed);
+    // Step 3: Save each scenario with openEndedQuestion to DB
+    const savedScenarios = await Promise.all(parsed.scenarios.map(async (s) => {
+      const scenario = new Scenario({
+        description: s.description,
+        tags: s.tags,
+        difficulty: s.difficulty,
+        topic: s.topic,
+        expectedSkill: s.expectedSkill,
+        quiz: s.quiz,
+        links: s.links,
+        openEndedQuestion: s.openEndedQuestion,
+        quizScore: 0,
+        completed: false,
+        userId: userId,
+        goal: goal,
+      });
+      return await scenario.save();
+    }));
+
+    res.status(200).json({ scenarios: savedScenarios });
+
   } catch (error) {
     console.error("Error generating scenarios:", error.message);
     res.status(500).json({ message: 'Failed to generate scenarios', error: error.message });
   }
 });
+
 // POST /api/submit-open-ended
 router.post('/api/submit-open-ended', async (req, res) => {
   const { userAnswer } = req.body;
@@ -96,6 +123,5 @@ Give thoughtful, supportive, and constructive feedback on their response. Mentio
   }
 });
 
-};
 
 export default router;
