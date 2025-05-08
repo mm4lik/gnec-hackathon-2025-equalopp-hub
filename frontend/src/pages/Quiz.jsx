@@ -1,44 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ScenarioCard from '../components/ScenarioCard';
+import FeedbackPanel from '../components/FeedbackPanel';
 
 function Quiz() {
-  const [answers, setAnswers] = useState(["", "", ""]);
-  const [feedback, setFeedback] = useState("");
+  const [scenario, setScenario] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
-  const handleChange = (index, value) => {
-    const updated = [...answers];
-    updated[index] = value;
-    setAnswers(updated);
-  };
+  useEffect(() => {
+    // Fetch scenario data from the API
+    fetch('/api/scenario')
+      .then((response) => response.json())
+      .then((data) => setScenario(data))
+      .catch((error) => console.error('Error fetching scenario:', error));
+  }, []);
 
-  const handleSubmit = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:8000/submit-quiz', {
+  const handleSubmit = (response) => {
+    // Submit user response to the API
+    fetch('/api/submit-response', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ user_id: "user123", answers }),
-    });
-    const data = await res.json();
-    setFeedback(data.feedback);
+      body: JSON.stringify({ response }),
+    })
+      .then((response) => response.json())
+      .then((data) => setFeedback(data.feedback))
+      .catch((error) => console.error('Error submitting response:', error));
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Allyship Quiz</h2>
-      {[0,1,2].map(i => (
-        <div key={i} className="mb-2">
-          <p>Q{i+1}: Choose an inclusive action</p>
-          <select className="border p-2 w-full" onChange={(e) => handleChange(i, e.target.value)}>
-            <option value="">Select</option>
-            <option value="inclusive">Inclusive</option>
-            <option value="exclusive">Exclusive</option>
-          </select>
+    <div className="container mx-auto p-4">
+      {scenario ? (
+        <ScenarioCard
+          title={scenario.title}
+          context={scenario.context}
+          question={scenario.question}
+          type={scenario.type}
+          options={scenario.options}
+          onSubmit={handleSubmit}
+        />
+      ) : (
+        <p>Loading scenario...</p>
+      )}
+
+      {feedback && (
+        <div className="mt-4">
+          <FeedbackPanel feedback={feedback.text} isCorrect={feedback.isCorrect} />
         </div>
-      ))}
-      <button onClick={handleSubmit} className="bg-green-500 text-white p-2 w-full mt-2">Submit</button>
-      {feedback && <p className="mt-4 font-bold">{feedback}</p>}
+      )}
     </div>
   );
 }

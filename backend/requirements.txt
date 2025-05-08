@@ -1,7 +1,0 @@
-
-fastapi
-uvicorn
-pymongo
-python-jose
-passlib
-python-dotenv

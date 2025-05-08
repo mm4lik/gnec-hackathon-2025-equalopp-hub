@@ -1,35 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Import your components
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Quiz from './pages/Quiz';
+import UpdateGoal from './pages/UpdateGoal';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const isAuthenticated = () => {
+    return localStorage.getItem('token') !== null;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="App">
+        <Navbar />
+        <main className="container mx-auto p-4">
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/quiz" element={<Quiz />} />
+            <Route path="/updateGoal" element={<UpdateGoal />} />
+
+            {/* Redirect root to home or login */}
+            <Route 
+              path="/" 
+              element={
+                isAuthenticated() ? 
+                <Navigate to="/dashboard" /> : 
+                <Navigate to="/home" />
+              } 
+            />
+
+            {/* 404 route */}
+            <Route path="*" element={<div>Page not found</div>} />
+          </Routes>
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;

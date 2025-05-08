@@ -7,7 +7,7 @@ function Navbar() {
       <Link to="/" className="font-bold text-lg">EqualOpp Hub</Link>
       <div className="space-x-4">
         <Link to="/dashboard">Dashboard</Link>
-        <Link to="/quiz">Quiz</Link>
+        <Link to="/updateGoal">Change Goal</Link>
         <Link to="/login">Login</Link>
       </div>
     </nav>

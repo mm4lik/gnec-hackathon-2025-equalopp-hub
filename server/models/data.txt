@@ -1,0 +1,53 @@
+[{
+  "id": "s1",
+  "text": "A coworker makes a joke about someone’s accent in a team meeting. The group laughs, but the person looks uncomfortable.",
+  "tags": ["microaggressions", "workplace", "bystander", "allyship"],
+  "difficulty": "medium",
+  "topic": "Cultural Sensitivity",
+  "expectedSkill": "Speaking up against microaggressions",
+  "quiz": [
+    {
+      "question": "What should you do when you witness a microaggression in the workplace?",
+      "options": [
+        "a) Ignore it and let it pass",
+        "b) Laugh along with the group",
+        "c) Speak up immediately, saying the joke was inappropriate",
+        "d) Wait until the end of the meeting and talk to the person privately"
+      ]
+    },
+    {
+      "question": "Why is it important to address microaggressions in the workplace?",
+      "options": [
+        "a) To make sure the person responsible is reprimanded",
+        "b) To create a more inclusive and supportive work environment",
+        "c) To avoid confrontation",
+        "d) To avoid making the person uncomfortable"
+      ]
+    },
+    {
+      "question": "How can you support the person affected by the microaggression?",
+      "options": [
+        "a) Ignore it and move on",
+        "b) Apologize for the behavior of the group and offer support afterward",
+        "c) Criticize the person for being sensitive",
+        "d) Laugh to show solidarity"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "title": "What are microaggressions? Understanding and combating microaggressions",
+      "url": "https://www.shrm.org/resourcesandtools/hr-topics/employee-relations/pages/what-are-microaggressions.aspx"
+    },
+    {
+      "title": "How to Respond to Microaggressions",
+      "url": "https://www.psychologytoday.com/us/blog/words-matter/201710/how-respond-to-microaggressions"
+    },
+    {
+      "title": "Addressing Microaggressions in the Workplace",
+      "url": "https://www.microsolutions.org/guide-to-microaggressions-in-the-workplace"
+    }
+  ],
+  "open_ended_question": "How would you personally address a situation like this if it happened to a colleague? Describe what you would say or do to support the person affected."
+},
+]
