@@ -73,21 +73,30 @@ Use double quotes for all fields. Do not include explanation or commentary.`;
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
-      max_tokens: 1400,
+      max_tokens: 2048,
     });
 console.log(response);
-    const content = response.choices[0].message.content;
-    const jsonStart = content.indexOf('{');
-    const jsonEnd = content.lastIndexOf('}') + 1; // Safely find the end of the JSON
-    const jsonText = content.slice(jsonStart, jsonEnd); // Extract only the JSON part
-
+console.log("fff");
+console.log(response.choices);
+    let content = response.choices[0].message.content;
+    console.log(response.choices[0].message.content);
     let parsed;
-    try {
-      parsed = JSON.parse(jsonText);
-    } catch (parseError) {
-      console.error("Error parsing JSON from OpenAI response:", parseError.message);
-      return res.status(500).json({ message: 'Failed to parse scenarios', error: parseError.message });
-    }
+    if (typeof content === "string") {
+      // Keep trimming the string until it starts with '{' and ends with '}'
+      while (content.charAt(0) !== "{" || content.charAt(content.length - 1) !== "}") {
+        if (content.charAt(0) !== "{") {
+          content = content.substring(1); // Trim the first character
+        }
+        if (content.charAt(content.length - 1) !== "}") {
+          content = content.substring(0, content.length - 1); // Trim the last character
+        }
+      }
+    
+
+    parsed = JSON.parse(content);
+  } else {
+    parsed = content;
+  }
 
     // Step 3: Save each scenario with openEndedQuestion to DB
     const savedScenarios = await Promise.all(parsed.scenarios.map(async (s) => {

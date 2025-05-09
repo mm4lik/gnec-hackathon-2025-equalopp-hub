@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ScenarioCard from '../components/ScenarioCard';
+import ScenarioDisplay from '../components/ScenarioDisplay';
+import { UserContext } from '../context/UserContext';
 
 function Dashboard() {
+  const { user } = useContext(UserContext);
   const [goal, setGoal] = useState('');
   const [scenarios, setScenarios] = useState([]);
+  const [selectedScenario, setSelectedScenario] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +30,7 @@ function Dashboard() {
             },
           })
             .then((response) => response.json())
-            .then((data) => setScenarios(data))
+            .then((data) => setScenarios(data.scenarios))
             .catch((error) => console.error('Error fetching scenarios:', error));
         }
       })
@@ -54,20 +57,30 @@ function Dashboard() {
       <h1 className="text-2xl font-bold mb-4">Your Dashboard</h1>
       <p className="mb-4">Your current goal: <span className="font-bold">{goal}</span></p>
       <h2 className="text-xl font-bold mb-4">Scenarios for Your Goal</h2>
+      <h2 className="text-xl font-bold mb-4">Scenarios for Your Goal</h2>
+
       {scenarios.length > 0 ? (
-        scenarios.map((scenario) => (
-          <ScenarioCard
-            key={scenario._id}
-            title={scenario.title}
-            context={scenario.context}
-            question={scenario.question}
-            type={scenario.type}
-            options={scenario.options}
-            onSubmit={(response) => console.log('User response:', response)}
-          />
-        ))
+        <ul>
+          {scenarios.map((scenario, idx) => (
+            <li key={idx} className="mb-2">
+              <button
+                className="text-blue-600 underline cursor-pointer"
+                onClick={() => setSelectedScenario(idx)}
+              >
+                Scenario {idx + 1}
+              </button>
+            </li>
+          ))}
+        </ul>
       ) : (
         <p>Loading scenarios...</p>
+      )}
+
+      {typeof selectedScenario === 'number' && scenarios[selectedScenario] && (
+        <ScenarioDisplay
+          scenario={scenarios[selectedScenario]}
+          index={selectedScenario}
+        />
       )}
     </div>
   );

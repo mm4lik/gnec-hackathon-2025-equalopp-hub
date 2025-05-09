@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ScenarioCard from '../components/ScenarioCard';
+import ScenarioDisplay from '../components/ScenarioDisplay';
 import FeedbackPanel from '../components/FeedbackPanel';
 
 function Quiz() {
@@ -31,14 +31,7 @@ function Quiz() {
   return (
     <div className="container mx-auto p-4">
       {scenario ? (
-        <ScenarioCard
-          title={scenario.title}
-          context={scenario.context}
-          question={scenario.question}
-          type={scenario.type}
-          options={scenario.options}
-          onSubmit={handleSubmit}
-        />
+        <ScenarioDisplay scenario={scenario} onSubmit={handleSubmit} />
       ) : (
         <p>Loading scenario...</p>
       )}
