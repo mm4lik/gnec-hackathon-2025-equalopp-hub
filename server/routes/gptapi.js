@@ -2,15 +2,14 @@ import express from "express";
 import 'dotenv/config';
 import { Scenario } from '../models/database.js';
 import OpenAI from "openai";
-import { authenticateUser } from '../middleware/auth.js'; // path as needed
-
+import { authenticateUser } from '../middleswares/auth.js'; 
 const router = express.Router();
 
 const openai = new OpenAI({ apiKey: process.env.VITE_OPENAI_KEY });
 
 // Route to fetch all scenarios
 // GET /api/generate-scenarios
-router.get('/api/generate-scenarios', authenticateUser, async (req, res) => {
+router.get('/get-scenarios', authenticateUser, async (req, res) => {
   try {
     const { gender, country, goal, _id: userId } = req.user;
 
@@ -26,7 +25,7 @@ router.get('/api/generate-scenarios', authenticateUser, async (req, res) => {
 - A "description" (minimum 100 words) that paints a vivid picture of the situation
 - A "tags" array (e.g. ["gender identity", "bystander intervention"])
 - "difficulty", "topic", and "expectedSkill" fields
-- A short multiple-choice quiz with 1-2 questions, each having 4 options
+- A short multiple-choice quiz with at least 5 questions, each having 4 options
 - 1 or more helpful "links"
 - An "openEndedQuestion" field with a reflective question like: "How would you respond if this happened to a colleague?"
 
@@ -41,6 +40,22 @@ Use this JSON format per scenario:
   "topic": "...",
   "expectedSkill": "...",
   "quiz": [
+    {
+      "question": "...",
+      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
+    },
+    {
+      "question": "...",
+      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
+    },
+    {
+      "question": "...",
+      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
+    },
+    {
+      "question": "...",
+      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
+    },
     {
       "question": "...",
       "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
@@ -60,11 +75,19 @@ Use double quotes for all fields. Do not include explanation or commentary.`;
       temperature: 0.7,
       max_tokens: 1400,
     });
-
+console.log(response);
     const content = response.choices[0].message.content;
     const jsonStart = content.indexOf('{');
-    const jsonText = content.slice(jsonStart);
-    const parsed = JSON.parse(jsonText);
+    const jsonEnd = content.lastIndexOf('}') + 1; // Safely find the end of the JSON
+    const jsonText = content.slice(jsonStart, jsonEnd); // Extract only the JSON part
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error("Error parsing JSON from OpenAI response:", parseError.message);
+      return res.status(500).json({ message: 'Failed to parse scenarios', error: parseError.message });
+    }
 
     // Step 3: Save each scenario with openEndedQuestion to DB
     const savedScenarios = await Promise.all(parsed.scenarios.map(async (s) => {
