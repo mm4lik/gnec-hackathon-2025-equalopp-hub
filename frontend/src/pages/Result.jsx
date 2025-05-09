@@ -14,15 +14,21 @@ export default function Result() {
   if (!quiz || quiz.length === 0) {
     return <div>No quiz results to show.</div>;
   }
-
+console.log(quiz);
   // Count correct answers by matching userResponse to correctAnswer for each question
   const correctCount = quiz.filter(
     (q, idx) => q.userResponse && q.correctAnswer && q.userResponse.trim() === q.correctAnswer.trim()
   ).length;
 
-  // Get open-ended question from scenario if available
-  const openEnded = location.state && location.state.scenario && location.state.scenario.openEndedQuestion;
-
+  // Try to get openEndedQuestion from the quiz context if not present in location.state
+  let openEnded = location.state && location.state.scenario && location.state.scenario.openEndedQuestion;
+  if (!openEnded && quiz && quiz.length > 0) {
+    // Try to find it from the scenario object in quiz context (if present)
+    if (quiz[0].openEndedQuestion) {
+      openEnded = quiz[0].openEndedQuestion;
+    }
+  }
+console.log(openEnded);
   const passed = correctCount >= 4;
 
   const handleSubmit = async (e) => {
@@ -31,6 +37,7 @@ export default function Result() {
     setError(null);
     setFeedback(null);
     try {
+        
       const res = await fetch("http://localhost:3000/api/submit-open-ended", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

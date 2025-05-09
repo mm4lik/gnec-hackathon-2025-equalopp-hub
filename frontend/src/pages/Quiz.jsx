@@ -12,22 +12,24 @@ function Quiz() {
   const [quizMaterial, setQuizMaterial] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const questionValue = quizMaterial[currentQuestionIndex];
-
+    console.log(location.state.scenario);
   useEffect(() => {
     // On mount, if scenario is passed, set quiz context only if quiz is empty
-    if (location.state && location.state.scenario && (!quiz || quiz.length === 0)) {
+
       const scenarioQuiz = location.state.scenario.quiz.map((q) => ({
         ...q,
         userResponse: "",
         attempted: false,
+        correctAnswer: q.correctAnswer,
+        links: location.state.scenario.links,
+        openEndedQuestion: location.state.scenario.openEndedQuestion
       }));
       setQuiz(scenarioQuiz);
-    }
     // If no quiz, redirect
     if (!quiz || quiz.length === 0) {
       navigate("/dashboard");
     }
-  }, [location.state, setQuiz, navigate]);
+  }, [location.state, setQuiz, quiz, navigate]);
 
   useEffect(() => {
     // Update quiz material from context
