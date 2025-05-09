@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { UserContext } from '../context/UserContext';
 
 // Inline country list
 const countries = [
@@ -12,13 +13,14 @@ const countries = [
 ];
 
 function Login() {
+  const { setUser } = useContext(UserContext);
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
     gender: '',
-    country: ''  // renamed from region
+    country: ''
   });
 
   const handleChange = (e) => {
@@ -45,8 +47,27 @@ function Login() {
 
       if (res.ok && data.access_token) {
         localStorage.setItem('token', data.access_token);
-        alert('Logged in!');
-        window.location = '/dashboard';
+        const token = data.access_token;
+        try {
+          const nameRes = await fetch('http://localhost:3000/get-name', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+
+          if (nameRes.ok) {
+            const nameData = await nameRes.json();
+            setUser({ name: nameData.name, isLoggedIn: true }); // Update context with name
+            alert('Logged in!');
+            window.location = '/dashboard';
+          } else {
+            localStorage.removeItem('token'); // Remove invalid token
+            alert('Session expired. Please log in again.');
+          }
+        } catch (err) {
+          console.error('Error fetching name:', err);
+          localStorage.removeItem('token'); // Remove invalid token
+          alert('Failed to verify session. Please log in again.');
+        }
       } else if (res.ok && mode === 'register') {
         alert('Registration successful! You can now log in.');
         setMode('login');

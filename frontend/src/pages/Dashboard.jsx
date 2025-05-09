@@ -20,7 +20,12 @@ function Dashboard() {
         console.log('User goal:', data.goal);
         if (data.goal !== 'set a goal') {
           // Fetch scenarios for the user's goal
-          fetch(`/api/scenarios?goal=${data.goal}`)
+          fetch('http://localhost:3000/get-scenarios', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          })
             .then((response) => response.json())
             .then((data) => setScenarios(data))
             .catch((error) => console.error('Error fetching scenarios:', error));
