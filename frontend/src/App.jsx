@@ -20,36 +20,79 @@ function App() {
   return (
     <Router>
       <QuizProvider>
-        <div className="App">
+        <div className="min-h-screen bg-gray-50 text-gray-900">
+          {/* Navigation Bar */}
           <Navbar />
-          <main className="container mx-auto p-4">
+
+          {/* Main Content Area */}
+          <main className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
             <Routes>
-              {/* Public routes */}
+              {/* Public Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/quiz" element={<Quiz />} />
-              <Route path="/updateGoal" element={<UpdateGoal />} />
-              <Route path="/scenario/:id" element={<Scenario />} />
-              <Route path="/result" element={<Result />} />
 
-              {/* Redirect root to home or login */}
-              <Route 
-                path="/" 
-                element={
-                  isAuthenticated() ? 
-                  <Navigate to="/dashboard" /> : 
-                  <Navigate to="/home" />
-                } 
+              {/* Protected Routes */}
+              <Route
+                path="/dashboard"
+                element={<Dashboard />}
+              />
+              <Route
+                path="/quiz"
+                element={<Quiz />}
+              />
+              <Route
+                path="/updateGoal"
+                element={<UpdateGoal />}
+              />
+              <Route
+                path="/scenario/:id"
+                element={<Scenario />}
+              />
+              <Route
+                path="/result"
+                element={<Result />}
               />
 
-              {/* 404 route */}
-              <Route path="*" element={<div>Page not found</div>} />
+              {/* Root Redirect */}
+              <Route
+                path="/"
+                element={
+                  isAuthenticated() ? (
+                    <Navigate to="/dashboard" />
+                  ) : (
+                    <Navigate to="/home" />
+                  )
+                }
+              />
+
+              {/* 404 Route */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
+
+          {/* Footer (optional) */}
+          <footer className="mt-auto py-6 text-center text-sm text-gray-500 border-t border-gray-100 bg-white">
+            <p>EqualOpp Hub © {new Date().getFullYear()}</p>
+          </footer>
         </div>
       </QuizProvider>
     </Router>
+  );
+}
+
+// Simple 404 Component
+function NotFound() {
+  return (
+    <div className="text-center py-12">
+      <h2 className="text-2xl font-semibold text-red-600 mb-2">Page Not Found</h2>
+      <p className="text-gray-600 mb-4">The page you’re looking for doesn’t exist.</p>
+      <button
+        onClick={() => window.history.back()}
+        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+      >
+        Go Back
+      </button>
+    </div>
   );
 }
 
