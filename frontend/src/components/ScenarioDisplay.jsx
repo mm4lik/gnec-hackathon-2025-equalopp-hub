@@ -1,7 +1,30 @@
 import React from 'react';
 
-function ScenarioDisplay({ scenario, index }) {
+function ScenarioDisplay({ scenario, index, showQuizOnly }) {
   if (!scenario) return null;
+
+  if (showQuizOnly) {
+    return (
+      <div className="mt-6 p-4 border rounded bg-gray-50">
+        <h3 className="font-bold mb-2">Quiz</h3>
+        <ul>
+          {scenario.quiz.map((q, qIdx) => (
+            <li key={qIdx} className="mb-1">
+              <div>{q.question}</div>
+              <ul>
+                {q.options.map((opt, oIdx) => (
+                  <li key={oIdx}>{opt}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-2">
+          <strong>Open Ended Question:</strong> {scenario.openEndedQuestion}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6 p-4 border rounded bg-gray-50">

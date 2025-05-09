@@ -25,7 +25,7 @@ router.get('/get-scenarios', authenticateUser, async (req, res) => {
 - A "description" (minimum 100 words) that paints a vivid picture of the situation
 - A "tags" array (e.g. ["gender identity", "bystander intervention"])
 - "difficulty", "topic", and "expectedSkill" fields
-- A short multiple-choice quiz with at least 5 questions, each having 4 options
+- A short multiple-choice quiz with at least 5 questions, each having 4 options, and indicate the correct answer for each question with a field called "correctAnswer" (the exact text of the correct option)
 - 1 or more helpful "links"
 - An "openEndedQuestion" field with a reflective question like: "How would you respond if this happened to a colleague?"
 
@@ -42,24 +42,10 @@ Use this JSON format per scenario:
   "quiz": [
     {
       "question": "...",
-      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
+      "options": ["a) ...", "b) ...", "c) ...", "d) ..."],
+      "correctAnswer": "a) ..."
     },
-    {
-      "question": "...",
-      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
-    },
-    {
-      "question": "...",
-      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
-    },
-    {
-      "question": "...",
-      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
-    },
-    {
-      "question": "...",
-      "options": ["a) ...", "b) ...", "c) ...", "d) ..."]
-    }
+    // ...more questions...
   ],
   "links": [
     { "title": "...", "url": "https://..." }
