@@ -4,9 +4,13 @@ import ReactCardFlip from "react-card-flip";
 export default function AttemptingPart({ question, passValue, index }) {
   const [selectedValue, setSelectedValue] = useState("");
 
+  // Sync selected value with userResponse if already attempted
   useEffect(() => {
-    if (question.attempted === true) setSelectedValue(question.userResponse);
-    else setSelectedValue("");
+    if (question.attempted) {
+      setSelectedValue(question.userResponse);
+    } else {
+      setSelectedValue("");
+    }
   }, [question]);
 
   const handleOptionSelect = (option) => {
@@ -14,51 +18,54 @@ export default function AttemptingPart({ question, passValue, index }) {
     passValue(option);
   };
 
-  const colors = [
-    "bg-iqLightGreen",
-    "bg-iqLightRed",
-    "bg-iqLightYellow",
-    "bg-iqLightBlue",
+  // Neutral-themed option colors
+  const optionColors = [
+    "bg-[#E0F0FF]", // Light blue
+    "bg-[#DCF2E9]",
+    "bg-[#FFF3DC]",
+    "bg-[#F5E6FF]",
   ];
+
   const selectedColors = [
-    "bg-iqGreen",
-    "bg-iqRed",
-    "bg-iqYellow",
-    "bg-iqBlue",
+    "bg-[#4A90E2]", // Strong blue
+    "bg-[#7ED321]", // Mint green
+    "bg-[#FF9500]", // Warm orange
+    "bg-[#9B59B6]", // Purple accent
   ];
 
   return (
-    <div className="w-full">
-      <h1 className="text-header text-dPurple mb-3">
+    <div className="w-full max-w-3xl mx-auto">
+      <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-5">
         {index + 1}. {question.question}
-      </h1>
-      <div className="grid grid-cols-2 gap-4 w-full">
+      </h2>
+
+      {/* Options Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         {question.options.map((option, idx) => {
-          // Determine color: attempted and selected, or just selected, or default
-          let colorClass = colors[idx];
-          if (option === selectedValue) {
-            colorClass = selectedColors[idx];
-          }
-          if (question.attempted && question.userResponse === option) {
-            colorClass = `${selectedColors[idx]} border-2 border-dPurple`;
-          }
+          let bgColor = option === selectedValue ? selectedColors[idx] : optionColors[idx];
+          let textColor = option === selectedValue ? "text-white" : "text-gray-800";
+          let border = question.attempted && question.userResponse === option
+            ? "border-2 border-blue-700 shadow-lg"
+            : "";
+
           return (
-            <div
+            <button
               key={idx}
-              className={`text-center text-button py-10 w-full justify-start cursor-pointer rounded-lg drop-shadow-lg ${colorClass}`}
               onClick={() => handleOptionSelect(option)}
+              className={`text-center py-6 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 ${bgColor} ${textColor} ${border}`}
             >
               {option}
-            </div>
+            </button>
           );
         })}
       </div>
 
-      <div className="mb-10">
+      {/* Hint Card */}
+      <div className="mt-6">
         {question.hint && question.hint.trim() !== "" ? (
           <FlipCard
             key={`hint-${index}`}
-            text="Click here for a hint!"
+            text="💡 Need a hint?"
             backText={question.hint}
           />
         ) : null}
@@ -67,25 +74,29 @@ export default function AttemptingPart({ question, passValue, index }) {
   );
 }
 
+// Flip card for hints
 function FlipCard({ text, backText }) {
   const [isFlipped, setIsFlipped] = useState(false);
-  function handleClick() {
+
+  const handleClick = () => {
     setIsFlipped(!isFlipped);
-  }
+  };
 
   return (
-    <div className="mt-10">
+    <div className="w-full max-w-md mx-auto mt-4">
       <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
+        {/* Front of the card */}
         <div
           onClick={handleClick}
-          className="py-10 bg-thistle w-full text-center text-button rounded-lg cursor-pointer"
+          className="py-4 bg-gradient-to-r from-[#4A90E2] to-[#7ED321] text-white text-center rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
         >
           {text}
         </div>
 
+        {/* Back of the card */}
         <div
           onClick={handleClick}
-          className="py-10 bg-magnolia inner-border-3 inner-border-amethyst text-center w-full text-button font-garamond rounded-lg cursor-pointer"
+          className="py-4 bg-white text-gray-800 text-center rounded-lg shadow-md border border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-300"
         >
           {backText}
         </div>

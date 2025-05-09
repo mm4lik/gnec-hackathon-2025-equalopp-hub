@@ -56,16 +56,16 @@ function Login() {
 
           if (nameRes.ok) {
             const nameData = await nameRes.json();
-            setUser({ name: nameData.name, isLoggedIn: true }); // Update context with name
+            setUser({ name: nameData.name, isLoggedIn: true });
             alert('Logged in!');
             window.location = '/dashboard';
           } else {
-            localStorage.removeItem('token'); // Remove invalid token
+            localStorage.removeItem('token');
             alert('Session expired. Please log in again.');
           }
         } catch (err) {
           console.error('Error fetching name:', err);
-          localStorage.removeItem('token'); // Remove invalid token
+          localStorage.removeItem('token');
           alert('Failed to verify session. Please log in again.');
         }
       } else if (res.ok && mode === 'register') {
@@ -81,69 +81,122 @@ function Login() {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">{mode === 'login' ? 'Login' : 'Register'}</h2>
-      <form onSubmit={handleSubmit} className="space-y-2">
-        {mode === 'register' && (
-          <>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-teal-50 to-green-50 px-4 py-12">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-8 border border-gray-100 transform transition-all hover:shadow-xl duration-300">
+
+        {/* Mode Toggle */}
+        <div className="flex justify-center space-x-4 mb-6">
+          <button
+            onClick={() => setMode('login')}
+            className={`px-4 py-2 font-medium text-sm ${
+              mode === 'login'
+                ? 'text-teal-600 border-b-2 border-teal-500'
+                : 'text-gray-500 hover:text-teal-500'
+            }`}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => setMode('register')}
+            className={`px-4 py-2 font-medium text-sm ${
+              mode === 'register'
+                ? 'text-teal-600 border-b-2 border-teal-500'
+                : 'text-gray-500 hover:text-teal-500'
+            }`}
+          >
+            Register
+          </button>
+        </div>
+
+        {/* Form Title */}
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          {mode === 'login' ? 'Welcome Back!' : 'Create an Account'}
+        </h2>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' && (
+            <>
+              <div>
+                <input
+                  name="name"
+                  placeholder="Full Name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <input
+                  name="gender"
+                  placeholder="Gender"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  value={form.gender}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <select
+                  name="country"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 appearance-none bg-white"
+                  value={form.country}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select your country</option>
+                  {countries.map((country) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div>
             <input
-              name="name"
-              placeholder="Name"
-              className="border p-2 w-full"
-              value={form.name}
+              name="email"
+              placeholder="Email"
+              type="email"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+              value={form.email}
               onChange={handleChange}
               required
             />
+          </div>
+          <div>
             <input
-              name="gender"
-              placeholder="Gender"
-              className="border p-2 w-full"
-              value={form.gender}
+              name="password"
+              placeholder="Password"
+              type="password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+              value={form.password}
               onChange={handleChange}
               required
             />
-            <select
-              name="country"
-              className="border p-2 w-full"
-              value={form.country}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select your country</option>
-              {countries.map((country) => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
-          </>
-        )}
-        <input
-          name="email"
-          placeholder="Email"
-          type="email"
-          className="border p-2 w-full"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="password"
-          placeholder="Password"
-          type="password"
-          className="border p-2 w-full"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <button className="bg-blue-500 text-white p-2 w-full">
-          {mode === 'login' ? 'Login' : 'Register'}
-        </button>
-      </form>
-      <button
-        className="mt-2 text-sm text-blue-500"
-        onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-      >
-        Switch to {mode === 'login' ? 'Register' : 'Login'}
-      </button>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full mt-2 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-300"
+          >
+            {mode === 'login' ? 'Log In' : 'Register'}
+          </button>
+        </form>
+
+        {/* Toggle Link */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+            className="text-sm text-teal-600 hover:text-teal-800 underline focus:outline-none"
+          >
+            {mode === 'login'
+              ? "Don't have an account? Register"
+              : "Already have an account? Log in"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

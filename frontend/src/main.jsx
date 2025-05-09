@@ -1,15 +1,21 @@
-// Importing necessary modules from React
-import { StrictMode } from 'react'  // StrictMode helps with detecting potential problems in the app during development
-import { createRoot } from 'react-dom/client'  // createRoot is used to initialize the React app in the root DOM element
+// main.jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
 
-// Importing global CSS styles for the app
-import './index.css'
-import { UserProvider } from './context/UserContext.jsx'
-import App from './App.jsx'
+// Context Providers
+import { UserProvider } from './context/UserContext.jsx';
 
-// Creating a root React element, binding it to the DOM element with the id of 'root'
-createRoot(document.getElementById('root')).render(
-  <UserProvider>
-    <App />
+// Main App Component
+import App from './App.jsx';
+
+// Create root and render app
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <React.StrictMode>
+    <UserProvider>
+      <App />
     </UserProvider>
-)
+  </React.StrictMode>
+);

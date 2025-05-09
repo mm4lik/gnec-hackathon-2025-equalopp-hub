@@ -12,18 +12,31 @@ export default function Result() {
   const [error, setError] = useState(null);
 
   if (!quiz || quiz.length === 0) {
-    return <div>No quiz results to show.</div>;
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600 text-lg">No quiz results to show.</p>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-4 px-5 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+        >
+          Go to Dashboard
+        </button>
+      </div>
+    );
   }
 
-  // Count correct answers by matching userResponse to correctAnswer for each question
+  // Count correct answers
   const correctCount = quiz.filter(
-    (q, idx) => q.userResponse && q.correctAnswer && q.userResponse.trim() === q.correctAnswer.trim()
+    (q) =>
+      q.userResponse &&
+      q.correctAnswer &&
+      q.userResponse.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()
   ).length;
 
   // Get open-ended question from scenario if available
   const openEnded = location.state && location.state.scenario && location.state.scenario.openEndedQuestion;
 
-  const passed = correctCount >= 4;
+  const passed = correctCount >= Math.ceil(quiz.length / 2); // At least half correct to pass
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,60 +63,75 @@ export default function Result() {
   };
 
   return (
-    <div className="p-8 max-w-xl mx-auto text-center">
-      <h1 className="text-3xl font-bold mb-6">Quiz Results</h1>
-      <p className="text-xl mb-4">
-        You got <span className="font-bold text-green-600">{correctCount}</span> out of {quiz.length} correct!
-      </p>
-      {passed ? (
-        <div className="mb-6">
-          <p className="text-lg font-semibold text-green-700 mb-2">Congratulations! You passed the quiz.</p>
-          {openEnded && !feedback && (
-            <form onSubmit={handleSubmit} className="mt-4">
-              <p className="font-bold mb-2">Open-Ended Question:</p>
-              <p className="italic mb-2">{openEnded}</p>
-              <textarea
-                className="w-full mt-2 p-2 border rounded"
-                rows={4}
-                placeholder="Type your answer here..."
-                value={openEndedAnswer}
-                onChange={e => setOpenEndedAnswer(e.target.value)}
-                required
-              />
-              <button
-                type="submit"
-                className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-                disabled={loading}
-              >
-                {loading ? "Submitting..." : "Submit for Review"}
-              </button>
-            </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-teal-50 to-green-50 p-6">
+      <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-8 border border-gray-100 transform transition-all hover:shadow-xl duration-300">
+
+        {/* Header */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Quiz Results</h1>
+        <p className="text-gray-600 mb-6">Let’s see how you did!</p>
+
+        {/* Score Summary */}
+        <div className={`p-6 rounded-lg border ${passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} mb-6`}>
+          <p className="text-2xl font-semibold mb-2">
+            You got <span className={passed ? 'text-green-600' : 'text-red-600'}>
+              {correctCount} out of {quiz.length}
+            </span> correct!
+          </p>
+          {passed ? (
+            <p className="text-green-700 font-medium">Congratulations! You passed the quiz 🎉</p>
+          ) : (
+            <p className="text-red-700 font-medium">You can do better — try again!</p>
           )}
-          {feedback && (
-            <div className="mt-6">
-              <p className="font-bold mb-2">AI Coach Feedback:</p>
-              <div className="bg-gray-100 p-4 rounded border mb-4 text-left">{feedback}</div>
-              <button
-                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-                onClick={() => navigate("/dashboard")}
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          )}
-          {error && <p className="text-red-600 mt-2">{error}</p>}
         </div>
-      ) : (
-        <>
-          <p className="text-lg font-semibold text-red-600 mb-6">You did not pass. Try again!</p>
+
+        {/* Open-Ended Question Section */}
+        {openEnded && !feedback && (
+          <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Open-Ended Response</h2>
+            <p className="italic text-gray-600 mb-4">{openEnded}</p>
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
+              rows={5}
+              placeholder="Type your answer here..."
+              value={openEndedAnswer}
+              onChange={(e) => setOpenEndedAnswer(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-md hover:opacity-90 transition-opacity focus:outline-none"
+            >
+              {loading ? "Submitting..." : "Submit for Review"}
+            </button>
+          </form>
+        )}
+
+        {/* Feedback Display */}
+        {feedback && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">AI Coach Feedback</h2>
+            <div className="bg-gray-50 p-4 rounded-md border border-gray-200 text-left whitespace-pre-wrap">
+              {feedback}
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <p className="text-red-600 mt-4 text-sm">{error}</p>
+        )}
+
+        {/* Back Button */}
+        <div className="flex justify-center mt-6">
           <button
-            className="mt-6 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
             onClick={() => navigate("/dashboard")}
           >
             Back to Dashboard
           </button>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
