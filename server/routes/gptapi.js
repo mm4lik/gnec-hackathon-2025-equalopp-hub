@@ -132,7 +132,28 @@ Give thoughtful, supportive, and constructive feedback on their response. Mentio
       max_tokens: 200,
     });
 
-    const feedback = response.choices[0].message.content.trim();
+    const feedbackContent = response.choices[0].message.content;
+    let feedback;
+    if (typeof feedbackContent === "string") {
+      let content = feedbackContent;
+      // Keep trimming the string until it starts with '{' and ends with '}'
+      while (content.charAt(0) !== "{" || content.charAt(content.length - 1) !== "}") {
+        if (content.charAt(0) !== "{") {
+          content = content.substring(1); // Trim the first character
+        }
+        if (content.charAt(content.length - 1) !== "}") {
+          content = content.substring(0, content.length - 1); // Trim the last character
+        }
+      }
+      try {
+        const parsed = JSON.parse(content);
+        feedback = parsed.feedback || content;
+      } catch (e) {
+        feedback = content.trim(); // fallback to raw string if not JSON
+      }
+    } else {
+      feedback = feedbackContent;
+    }
 
     res.status(200).json({ feedback });
   } catch (error) {

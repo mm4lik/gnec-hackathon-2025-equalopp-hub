@@ -21,6 +21,7 @@ const scenarioSchema = new mongoose.Schema({
     {
       question: String,
       options: [String],
+      correctAnswer: String, // Add this line to store the correct answer
     }
   ],
   links: [
